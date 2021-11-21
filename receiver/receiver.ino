@@ -31,6 +31,6 @@ void loop(void) {
     }
   }
   else {
-    Serial.println("No radio available");
+    //Serial.println("No radio available");
   }
 }

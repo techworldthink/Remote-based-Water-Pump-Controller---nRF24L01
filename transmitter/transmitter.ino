@@ -23,7 +23,8 @@ void setup(void) {
 }
 
 void loop(void) {
-  bool rslt;
+  bool rslt = false;
+  int try_count = 0;
 
   if (digitalRead(SW1) == LOW) {
     if (flag_click == 0) {
@@ -36,28 +37,47 @@ void loop(void) {
 
     if (flag_click == 1) {
       msg[0] = 111;
-      rslt = radio.write(msg, 1);
-      rslt = radio.write(msg, 1);
-      rslt = radio.write(msg, 1);
+      while (!rslt) {
+        Serial.print("try on\n");
+        digitalWrite(indicator_led, HIGH);
+        rslt = radio.write(msg, 1) || radio.write(msg, 1) || radio.write(msg, 1);
+        delay(500);
+        digitalWrite(indicator_led, LOW);
+        delay(100);
+        try_count++;
+        Serial.print(try_count);
+        if (try_count > 5) {
+          break;
+        }
+      }
       delay(100);
       if (rslt) {
         digitalWrite(indicator_led, HIGH);
+        digitalWrite(power_led, HIGH);
+      } else {
+        digitalWrite(power_led, LOW);
       }
-      //else {
-      //  digitalWrite(indicator_led, LOW);
-      // }
     } else {
       msg[0] = 000;
-      rslt = radio.write(msg, 1);
-      rslt = radio.write(msg, 1);
-      rslt = radio.write(msg, 1);
+      while (!rslt) {
+        Serial.print("try off\n");
+        digitalWrite(indicator_led, LOW);
+        rslt = radio.write(msg, 1) || radio.write(msg, 1) || radio.write(msg, 1);
+        delay(500);
+        digitalWrite(indicator_led, HIGH);
+        delay(100);
+        try_count++;
+        if (try_count > 5) {
+          break;
+        }
+      }
       delay(100);
       if (rslt) {
         digitalWrite(indicator_led, LOW);
+        digitalWrite(power_led, HIGH);
+      } else {
+        digitalWrite(power_led, LOW);
       }
-      //else {
-      // digitalWrite(indicator_led, HIGH);
-      //}
     }
   }
 }
